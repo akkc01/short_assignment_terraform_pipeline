@@ -10,28 +10,41 @@ pool:
   name: akkc_agent
 
 stages:
-  - stage: terraformInitandfmt
-    displayName: "Terraform install, init and fmt"
+- stage: terraformInitandfmt
+  displayName: "Terraform install, init and fmt"
 
-    jobs:
-      - job: terraformInstall
-        displayName: "Terraform Install & Init"
+  jobs:
 
-        steps:
-          - task: TerraformInstaller@1
-            displayName: "Install Terraform"
-            inputs:
-              terraformVersion: 'latest'
+    - job: terraformInstall
+      displayName: "Install Terraform"
+      steps:
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
+          inputs:
+            terraformVersion: 'latest'
 
-          - task: TerraformTaskV2@2
-            displayName: "Terraform Init"
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
-              backendServiceArm: 'akkc_agent_sp'
-              backendAzureRmOverrideSubscriptionID: 'c0748677-9808-4356-8816-dc8088c5bb59'
-              backendAzureRmResourceGroupName: 'tfstatefile_rg_for_all_do_not_delete'
-              backendAzureRmStorageAccountName: 'tfstatestgaccg2b17'
-              backendAzureRmContainerName: 'akkcagentcontainer'
-              backendAzureRmKey: 'dev.terraform.tfstate'
+    - job: terraformInit
+      displayName: "Terraform Init"
+      dependsOn: terraformInstall
+      steps:
+        - task: TerraformTaskV2@2
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+            backendServiceArm: 'akkc_agent_sp'
+            backendAzureRmOverrideSubscriptionID: 'c0748677-9808-4356-8816-dc8088c5bb59'
+            backendAzureRmResourceGroupName: 'tfstatefile_rg_for_all_do_not_delete'
+            backendAzureRmStorageAccountName: 'tfstatestgaccg2b17'
+            backendAzureRmContainerName: 'akkcagentcontainer'
+            backendAzureRmKey: 'dev.terraform.tfstate'
+        - task: TerraformTask@5
+          displayName: "Terraform fmt"
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: 'akkc_agent_sp'
