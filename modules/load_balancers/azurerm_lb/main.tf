@@ -19,7 +19,8 @@ resource "azurerm_lb" "lb" {
     content {
       name                                               = frontend_ip_configuration.value.name
       zones                                              = lookup(frontend_ip_configuration.value, "zones", null)
-      subnet_id                                          = data.azurerm_subnet.bastion_sub[each.key].id
+      #If subnet_id is set → LB is Internal/private.
+      #subnet_id                                          = data.azurerm_subnet.bastion_sub[each.key].id
       gateway_load_balancer_frontend_ip_configuration_id = lookup(frontend_ip_configuration.value, "gateway_load_balancer_frontend_ip_configuration_id", null)
       private_ip_address                                 = lookup(frontend_ip_configuration.value, "private_ip_address", null)
       private_ip_address_allocation                      = lookup(frontend_ip_configuration.value, "private_ip_address_allocation", null)

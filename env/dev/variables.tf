@@ -526,7 +526,6 @@ variable "wvm" {
   type = map(object({
     rg_key          = string
     location        = string
-    kv_rg           = string
     kv_name         = string
     username_secret = string
     password_secret = string
@@ -704,7 +703,7 @@ variable "load_balancers" {
     subnet_name = string
     vnet_name   = string
     # Optional (Top-Level)
-    edge_zone = optional(string)
+    #edge_zone = optional(string)
     sku       = optional(string)
     sku_tier  = optional(string)
     tags      = optional(map(string))

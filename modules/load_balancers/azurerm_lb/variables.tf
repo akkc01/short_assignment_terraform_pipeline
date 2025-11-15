@@ -8,7 +8,7 @@ variable "load_balancers" {
     subnet_name = string
     vnet_name   = string
     # Optional (Top-Level)
-    edge_zone = optional(string)
+    #edge_zone = optional(string)
     sku       = optional(string)
     sku_tier  = optional(string)
     tags      = optional(map(string))
