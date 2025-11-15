@@ -12,7 +12,6 @@ pool:
 stages:
 - stage: terraformInitandfmt
   displayName: "Terraform install, init and fmt"
-
   jobs:
 
     - job: terraformInstall
