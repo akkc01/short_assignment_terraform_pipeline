@@ -109,27 +109,27 @@ module "bastion" {
   rg_names   = module.rg.names
 }
 
-module "aks" {
-  depends_on   = [module.rg]
-  source       = "../../modules/containerization/azurerm_kubernetes_cluster"
-  aks_clusters = var.aks_clusters
-  rg_name      = module.rg.names
-}
+# module "aks" {
+#   depends_on   = [module.rg]
+#   source       = "../../modules/containerization/azurerm_kubernetes_cluster"
+#   aks_clusters = var.aks_clusters
+#   rg_name      = module.rg.names
+# }
 
-module "acr_instances" {
-  depends_on    = [module.rg, module.aks]
-  source        = "../../modules/containerization/azurerm_container_registry"
-  acr_instances = var.acr_instances
-  rg_name       = module.rg.names
-}
+# module "acr_instances" {
+#   depends_on    = [module.rg, module.aks]
+#   source        = "../../modules/containerization/azurerm_container_registry"
+#   acr_instances = var.acr_instances
+#   rg_name       = module.rg.names
+# }
 
-module "aks_acr_assign" {
-  depends_on               = [module.aks, module.acr_instances]
-  source                   = "../../modules/containerization/azurerm_role_assignment_aks_attach_to_acr"
-  aks_acr_role_assignments = var.aks_acr_role_assignments
-  rg_name                  = module.rg.names
+# module "aks_acr_assign" {
+#   depends_on               = [module.aks, module.acr_instances]
+#   source                   = "../../modules/containerization/azurerm_role_assignment_aks_attach_to_acr"
+#   aks_acr_role_assignments = var.aks_acr_role_assignments
+#   rg_name                  = module.rg.names
 
-}
+# }
 
 module "lb" {
   depends_on     = [module.rg, module.pips, module.subnet, module.vnet]

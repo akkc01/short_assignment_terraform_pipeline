@@ -667,31 +667,40 @@ variable "bastions" {
   }))
 }
 
-variable "aks_clusters" {
-  type = map(object({
-    cluster_name = string
-    location     = string
-    rg_key       = string
-    node_count   = number
-    vm_size      = string
-    dns_prefix   = string
-  }))
-}
+# variable "aks_clusters" {
+#   type = map(object({
+#     cluster_name = string
+#     location     = string
+#     rg_key       = string
+#     node_count   = number
+#     vm_size      = string
+#     dns_prefix   = string
+#   }))
+# }
 
-variable "acr_instances" {
-  type = map(object({
-    location      = string
-    rg_key        = string
-    acr_name      = string
-    sku           = string
-    admin_enabled = bool
-    georeplications = map(object({
-      location                = string
-      zone_redundancy_enabled = bool
-      tags                    = map(string)
-    }))
-  }))
-}
+# variable "acr_instances" {
+#   type = map(object({
+#     location      = string
+#     rg_key        = string
+#     acr_name      = string
+#     sku           = string
+#     admin_enabled = bool
+#     georeplications = map(object({
+#       location                = string
+#       zone_redundancy_enabled = bool
+#       tags                    = map(string)
+#     }))
+#   }))
+# }
+
+# variable "aks_acr_role_assignments" {
+#   type = map(object({
+#     rg_key   = string
+#     acr_name = string
+#     aks_name = string
+#   }))
+# }
+
 
 variable "load_balancers" {
   type = map(object({
@@ -759,13 +768,6 @@ variable "lb_rules" {
   }))
 }
 
-variable "aks_acr_role_assignments" {
-  type = map(object({
-    rg_key   = string
-    acr_name = string
-    aks_name = string
-  }))
-}
 
 
 variable "nic_bpool_associ" {
