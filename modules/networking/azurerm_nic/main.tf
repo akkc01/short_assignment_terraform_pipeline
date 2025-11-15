@@ -24,6 +24,7 @@ resource "azurerm_network_interface" "nic" {
       subnet_id                     = data.azurerm_subnet.subnet[each.key].id
       # Optional fields inside ip_configuration
       gateway_load_balancer_frontend_ip_configuration_id = try(ip_configuration.value.gateway_load_balancer_frontend_ip_configuration_id, null)
+      #load_balancer_backend_address_pools_ids            = [azurerm_lb_backend_address_pool.bepool.id]
       private_ip_address_version                         = try(ip_configuration.value.private_ip_address_version, null)
       #public_ip_address_id                               = data.azurerm_public_ip.pip[each.key].id
       public_ip_address_id = try(ip_configuration.public_ip_address_id, null)
