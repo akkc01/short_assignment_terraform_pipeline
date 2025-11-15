@@ -34,6 +34,8 @@ stages:
             command: 'init'
             workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
             backendServiceArm: 'akkc_agent_sp'
+            ensureBackend: true
+            backendAzureRmUseADOManagedIdentity: false
             backendAzureRmOverrideSubscriptionID: 'c0748677-9808-4356-8816-dc8088c5bb59'
             backendAzureRmResourceGroupName: 'tfstatefile_rg_for_all_do_not_delete'
             backendAzureRmStorageAccountName: 'tfstatestgaccg2b17'
