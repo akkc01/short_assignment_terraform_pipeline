@@ -1,3 +1,13 @@
+parameters:
+  - name: environment
+    displayName: "Choose Environment"
+    type: string
+    default: dev
+    values:
+      - dev
+      - staging
+      - prod
+
 trigger:
   branches:
     include:
@@ -9,11 +19,23 @@ trigger:
 pool:
   name: akkc_agent
 
+variables:
+  # Backend Key
+  tfstateKey: '${{ parameters.environment }}.terraform.tfstate'
+
+  # Working directory
+  tf_working_dir: '$(System.DefaultWorkingDirectory)/env/${{parameters.environment}}'
+
+  # Storage
+  tf_rg: 'my-rg-test1'
+  tf_storage: 'demostorage9451'
+  tf_container: 'tfstate'
+  sc_name: 'akkc_agent_sp'
+
 stages:
 - stage: terraformInitandfmt
   displayName: "Terraform install, init and fmt"
   jobs:
-
     - job: terraformInstall
       displayName: "Install Terraform"
       steps:
@@ -21,22 +43,17 @@ stages:
           displayName: "Install Terraform"
           inputs:
             terraformVersion: 'latest'
-
-    - job: terraformInit
-      displayName: "Terraform Init"
-      dependsOn: terraformInstall
-      steps:
         - task: TerraformTask@5
           displayName: "Terraform Init"
           inputs:
             provider: 'azurerm'
             command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
-            backendServiceArm: 'akkc_agent_sp'
-            backendAzureRmResourceGroupName: 'my-rg-test1'
-            backendAzureRmStorageAccountName: 'demostorage9451'
-            backendAzureRmContainerName: 'tfstate'
-            backendAzureRmKey: 'dev.terraform.tfstate'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
         - task: TerraformTask@5
           displayName: "Terraform fmt"
           inputs:
@@ -45,4 +62,80 @@ stages:
             workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
             outputTo: 'console'
             customCommand: 'fmt'
-            environmentServiceNameAzureRM: 'akkc_agent_sp'
+            environmentServiceNameAzureRM: '$(sc_name)'
+
+- stage: terraformValidatePlan
+  displayName: "Terraform Validate Plan"
+  dependsOn: terraformInitandfmt
+  jobs:
+    - job: terraformvalidatePlan
+      displayName: "Terraform Validate and Plan"
+      steps:
+        - task: TerraformTask@5
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
+        - task: TerraformTask@5
+          displayName: "Terraform Validate"
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(tf_working_dir)'
+        - task: TerraformTask@5
+          displayName: "Terraform Plan"
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(tf_working_dir)'
+            environmentServiceNameAzureRM: '$(sc_name)'
+
+- stage: manualApproval
+  displayName: "Manual Approval Required"
+  dependsOn: terraformValidatePlan
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+    - job: approvalJob
+      displayName: "Waiting for Boss Approval"
+      pool: server
+
+      steps:
+        - task: ManualValidation@1
+          displayName: "Boss Approval Required"
+          inputs:
+            notifyUsers: 'amitkkc01@gmail.com'
+            approvers: 'amitkkc01@gmail.com'
+            instructions: 'Please approve Terraform APPLY for MAIN branch.'
+            timeout: '120'
+
+# - stage: terraformApply
+#   displayName: Terraform Apply
+#   dependsOn: manualApproval
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   jobs:
+#     - job: terraformApplyJob
+#       displayName: Terraform Apply Job
+#       steps:
+#         - task: TerraformTask@5
+#           displayName: "Terraform Init"
+#           inputs:
+#             provider: 'azurerm'
+#             command: 'init'
+#             workingDirectory: '$(tf_working_dir)'
+#             backendServiceArm: '$(sc_name)'
+#             backendAzureRmResourceGroupName: '$(tf_rg)'
+#             backendAzureRmStorageAccountName: '$(tf_storage)'
+#             backendAzureRmContainerName: '$(tf_container)'
+#             backendAzureRmKey: '$(tfstateKey)'
+#         - task: TerraformTask@5
+#           displayName: "Terraform Apply"
+#           inputs:
+#             provider: 'azurerm'
+#             command: 'apply'
+#             environmentServiceNameAzureRM: '$(sc_name)'
