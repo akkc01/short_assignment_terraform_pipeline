@@ -1,14 +1,28 @@
 variable "subscription_id" {}
 
+# variable "resource_groups" {
+#   description = "A map of resource groups to create. The key of the map will be used as the resource group identifier."
+#   type = map(object({
+#     name       = string
+#     location   = string
+#     managed_by = optional(string)
+#     tags       = optional(map(string), {})
+#   }))
+# }
+
 variable "resource_groups" {
   description = "A map of resource groups to create. The key of the map will be used as the resource group identifier."
+
   type = map(object({
     name       = string
     location   = string
     managed_by = optional(string)
-    tags       = optional(map(string), {})
+    tags       = optional(map(string))
   }))
+
+  default = {}
 }
+
 
 # variable "stgaccount" {
 #   description = "A map of storage accounts to create. The key of the map will be used as the storage account identifier."
@@ -374,23 +388,79 @@ variable "stgaccount" {
 
 
 
+# variable "vnets" {
+#   description = "All the VNets"
+#   type = map(object({
+#     name          = string
+#     location      = string
+#     rg_key        = string
+#     address_space = optional(list(string))
+#     dns_servers   = optional(list(string))
+#     bgp_community = optional(number)
+
+#     ddos_protection_plan = optional(object({
+#       id     = string
+#       enable = string
+#     }))
+
+#     edge_zone               = optional(string)
+#     flow_timeout_in_minutes = optional(string)
+
+#     ip_address_pool = optional(map(object({
+#       id                     = string
+#       number_of_ip_addresses = string
+#     })))
+
+#     subnet = optional(map(object({
+#       name                            = string
+#       address_prefixes                = list(string)
+#       security_group                  = optional(string)
+#       default_outbound_access_enabled = optional(bool)
+#       delegation = optional(map(object({
+#         name = string
+#         service_delegation = map(object({
+#           name    = string
+#           actions = optional(list(string))
+#         }))
+#       })))
+
+#       private_endpoint_network_policies             = optional(string)
+#       private_link_service_network_policies_enabled = optional(bool)
+#       route_table_id                                = optional(string)
+#       service_endpoints                             = optional(list(string))
+#       service_endpoint_policy_ids                   = optional(list(string))
+#     })))
+
+#     private_endpoint_vnet_policies = optional(string)
+#     tags                           = optional(map(string))
+
+#     encryption = optional(object({
+#       enforcement = string
+#     }))
+#   }))
+# }
+
 variable "vnets" {
   description = "All the VNets"
+
   type = map(object({
-    name          = string
-    location      = string
-    rg_key        = string
-    address_space = optional(list(string))
-    dns_servers   = optional(list(string))
-    bgp_community = optional(number)
+    name                           = string
+    location                       = string
+    rg_key                         = string
+
+    address_space                  = optional(list(string))
+    dns_servers                    = optional(list(string))
+    bgp_community                  = optional(number)
+    private_endpoint_vnet_policies = optional(string)
+    edge_zone                      = optional(string)
+    flow_timeout_in_minutes        = optional(string)
+
+    tags = optional(map(string))
 
     ddos_protection_plan = optional(object({
       id     = string
       enable = string
     }))
-
-    edge_zone               = optional(string)
-    flow_timeout_in_minutes = optional(string)
 
     ip_address_pool = optional(map(object({
       id                     = string
@@ -398,10 +468,16 @@ variable "vnets" {
     })))
 
     subnet = optional(map(object({
-      name                            = string
-      address_prefixes                = list(string)
-      security_group                  = optional(string)
-      default_outbound_access_enabled = optional(bool)
+      name                                          = string
+      address_prefixes                              = list(string)
+      security_group                                = optional(string)
+      default_outbound_access_enabled               = optional(bool)
+      private_endpoint_network_policies             = optional(string)
+      private_link_service_network_policies_enabled = optional(bool)
+      route_table_id                                = optional(string)
+      service_endpoints                             = optional(list(string))
+      service_endpoint_policy_ids                   = optional(list(string))
+
       delegation = optional(map(object({
         name = string
         service_delegation = map(object({
@@ -409,16 +485,7 @@ variable "vnets" {
           actions = optional(list(string))
         }))
       })))
-
-      private_endpoint_network_policies             = optional(string)
-      private_link_service_network_policies_enabled = optional(bool)
-      route_table_id                                = optional(string)
-      service_endpoints                             = optional(list(string))
-      service_endpoint_policy_ids                   = optional(list(string))
     })))
-
-    private_endpoint_vnet_policies = optional(string)
-    tags                           = optional(map(string))
 
     encryption = optional(object({
       enforcement = string
@@ -426,20 +493,58 @@ variable "vnets" {
   }))
 }
 
+
+
+# variable "subnets" {
+#   description = "Map of subnet configurations to create."
+#   type = map(object({
+#     subnet_name                                   = string
+#     virtual_network_name                          = string
+#     default_outbound_access_enabled               = optional(bool, true)
+#     private_endpoint_network_policies             = optional(string, "Disabled")
+#     private_link_service_network_policies_enabled = optional(bool, true)
+#     sharing_scope                                 = optional(string)
+#     service_endpoints                             = optional(list(string))
+#     service_endpoint_policy_ids                   = optional(list(string))
+#     rg_key                                        = string
+
+#     # Either one must be set
+#     address_prefixes = optional(list(string))
+
+#     ip_address_pool = optional(object({
+#       id                     = string
+#       number_of_ip_addresses = string
+#     }))
+
+#     # Optional configurations
+#     delegation = optional(list(object({
+#       name = string
+#       service_delegation = object({
+#         name    = string
+#         actions = optional(list(string))
+#       })
+#     })))
+
+
+#   }))
+# }
+
 variable "subnets" {
   description = "Map of subnet configurations to create."
+
   type = map(object({
-    subnet_name                                   = string
-    virtual_network_name                          = string
-    default_outbound_access_enabled               = optional(bool, true)
-    private_endpoint_network_policies             = optional(string, "Disabled")
-    private_link_service_network_policies_enabled = optional(bool, true)
+    subnet_name                      = string
+    virtual_network_name             = string
+    rg_key                           = string
+
+    default_outbound_access_enabled               = optional(bool)
+    private_endpoint_network_policies             = optional(string)
+    private_link_service_network_policies_enabled = optional(bool)
     sharing_scope                                 = optional(string)
     service_endpoints                             = optional(list(string))
     service_endpoint_policy_ids                   = optional(list(string))
-    rg_key                                        = string
 
-    # Either one must be set
+    # Either address_prefixes OR ip_address_pool is required (logic you will enforce in locals)
     address_prefixes = optional(list(string))
 
     ip_address_pool = optional(object({
@@ -447,7 +552,6 @@ variable "subnets" {
       number_of_ip_addresses = string
     }))
 
-    # Optional configurations
     delegation = optional(list(object({
       name = string
       service_delegation = object({
@@ -455,10 +559,12 @@ variable "subnets" {
         actions = optional(list(string))
       })
     })))
-
-
   }))
+
+  default = {}
 }
+
+
 
 variable "pips" {
   description = "Map of public IP configurations"
@@ -921,8 +1027,29 @@ variable "wvm" {
   }))
 }
 
+# variable "sql_servers" {
+#   description = "Configuration for multiple Azure SQL Servers"
+#   type = map(object({
+#     sqlserver_name    = string
+#     rg_key            = string
+#     location          = string
+#     version           = string
+#     kv_name           = string
+#     sql_user_secret   = string
+#     sql_pass_secret   = string
+#     connection_policy = optional(string, "Default")
+#     # Optional identity block
+#     identity = optional(object({
+#       type = string
+#     }))
+
+#     tags = optional(map(string))
+#   }))
+# }
+
 variable "sql_servers" {
   description = "Configuration for multiple Azure SQL Servers"
+
   type = map(object({
     sqlserver_name    = string
     rg_key            = string
@@ -931,52 +1058,135 @@ variable "sql_servers" {
     kv_name           = string
     sql_user_secret   = string
     sql_pass_secret   = string
-    connection_policy = optional(string, "Default")
-    # Optional identity block
+
+    connection_policy = optional(string)
+
     identity = optional(object({
       type = string
     }))
 
     tags = optional(map(string))
   }))
+
+  default = {}
 }
+
+
+
+# variable "sql_databases" {
+#   description = "Configuration for multiple Azure SQL Databases"
+#   type = map(object({
+#     # Required
+#     name = string
+#     # Optional
+#     auto_pause_delay_in_minutes                                = optional(number)
+#     create_mode                                                = optional(string, "Default")
+#     creation_source_database_id                                = optional(string)
+#     collation                                                  = optional(string)
+#     elastic_pool_id                                            = optional(string)
+#     enclave_type                                               = optional(string)
+#     geo_backup_enabled                                         = optional(bool, true)
+#     maintenance_configuration_name                             = optional(string, "SQL_Default")
+#     ledger_enabled                                             = optional(bool, false)
+#     license_type                                               = optional(string)
+#     max_size_gb                                                = optional(number)
+#     min_capacity                                               = optional(number)
+#     restore_point_in_time                                      = optional(string)
+#     recover_database_id                                        = optional(string)
+#     recovery_point_id                                          = optional(string)
+#     restore_dropped_database_id                                = optional(string)
+#     restore_long_term_retention_backup_id                      = optional(string)
+#     read_replica_count                                         = optional(number)
+#     read_scale                                                 = optional(bool)
+#     sample_name                                                = optional(string)
+#     sku_name                                                   = optional(string)
+#     storage_account_type                                       = optional(string, "Geo")
+#     transparent_data_encryption_enabled                        = optional(bool, true)
+#     transparent_data_encryption_key_vault_key_id               = optional(string)
+#     transparent_data_encryption_key_automatic_rotation_enabled = optional(bool, false)
+#     zone_redundant                                             = optional(bool)
+#     secondary_type                                             = optional(string, "Geo")
+#     tags                                                       = optional(map(string))
+
+#     # Optional Nested Blocks
+#     import = optional(object({
+#       storage_uri                  = string
+#       storage_key                  = string
+#       storage_key_type             = string
+#       administrator_login          = string
+#       administrator_login_password = string
+#       authentication_type          = string
+#       storage_account_id           = optional(string)
+#     }))
+
+#     threat_detection_policy = optional(object({
+#       state                      = optional(string, "Disabled")
+#       disabled_alerts            = optional(list(string))
+#       email_account_admins       = optional(string, "Disabled")
+#       email_addresses            = optional(list(string))
+#       retention_days             = optional(number)
+#       storage_account_access_key = optional(string)
+#       storage_endpoint           = optional(string)
+#     }))
+
+#     long_term_retention_policy = optional(object({
+#       weekly_retention  = optional(string, "PT0S")
+#       monthly_retention = optional(string, "PT0S")
+#       yearly_retention  = optional(string, "PT0S")
+#       week_of_year      = optional(number)
+#     }))
+
+#     short_term_retention_policy = optional(object({
+#       retention_days           = number
+#       backup_interval_in_hours = optional(number, 12)
+#     }))
+
+#     identity = optional(object({
+#       type         = string
+#       identity_ids = list(string)
+#     }))
+#   }))
+# }
 
 variable "sql_databases" {
   description = "Configuration for multiple Azure SQL Databases"
-  type = map(object({
-    # Required
-    name = string
-    # Optional
-    auto_pause_delay_in_minutes                                = optional(number)
-    create_mode                                                = optional(string, "Default")
-    creation_source_database_id                                = optional(string)
-    collation                                                  = optional(string)
-    elastic_pool_id                                            = optional(string)
-    enclave_type                                               = optional(string)
-    geo_backup_enabled                                         = optional(bool, true)
-    maintenance_configuration_name                             = optional(string, "SQL_Default")
-    ledger_enabled                                             = optional(bool, false)
-    license_type                                               = optional(string)
-    max_size_gb                                                = optional(number)
-    min_capacity                                               = optional(number)
-    restore_point_in_time                                      = optional(string)
-    recover_database_id                                        = optional(string)
-    recovery_point_id                                          = optional(string)
-    restore_dropped_database_id                                = optional(string)
-    restore_long_term_retention_backup_id                      = optional(string)
-    read_replica_count                                         = optional(number)
-    read_scale                                                 = optional(bool)
-    sample_name                                                = optional(string)
-    sku_name                                                   = optional(string)
-    storage_account_type                                       = optional(string, "Geo")
-    transparent_data_encryption_enabled                        = optional(bool, true)
-    transparent_data_encryption_key_vault_key_id               = optional(string)
-    transparent_data_encryption_key_automatic_rotation_enabled = optional(bool, false)
-    zone_redundant                                             = optional(bool)
-    secondary_type                                             = optional(string, "Geo")
-    tags                                                       = optional(map(string))
 
-    # Optional Nested Blocks
+  type = map(object({
+
+    # Required
+    name        = string
+    server_name = string
+    rg_key      = string
+
+    # Optional
+    auto_pause_delay_in_minutes = optional(number)
+    create_mode                 = optional(string)
+    creation_source_database_id = optional(string)
+    collation                   = optional(string)
+    elastic_pool_id             = optional(string)
+    enclave_type                = optional(string)
+    geo_backup_enabled          = optional(bool)
+    maintenance_configuration_name = optional(string)
+    ledger_enabled                = optional(bool)
+    license_type                  = optional(string)
+    max_size_gb                   = optional(number)
+    min_capacity                  = optional(number)
+    restore_point_in_time         = optional(string)
+    recover_database_id           = optional(string)
+    recovery_point_id             = optional(string)
+    restore_dropped_database_id   = optional(string)
+    restore_long_term_retention_backup_id = optional(string)
+    read_replica_count                     = optional(number)
+    read_scale                             = optional(bool)
+    sample_name                            = optional(string)
+    sku_name                               = optional(string)
+    storage_account_type                   = optional(string)
+    transparent_data_encryption_enabled    = optional(bool)
+    zone_redundant                         = optional(bool)
+    secondary_type                         = optional(string)
+    tags                                   = optional(map(string))
+
+    # Nested Optional Block
     import = optional(object({
       storage_uri                  = string
       storage_key                  = string
@@ -988,9 +1198,9 @@ variable "sql_databases" {
     }))
 
     threat_detection_policy = optional(object({
-      state                      = optional(string, "Disabled")
+      state                      = optional(string)
       disabled_alerts            = optional(list(string))
-      email_account_admins       = optional(string, "Disabled")
+      email_account_admins       = optional(string)
       email_addresses            = optional(list(string))
       retention_days             = optional(number)
       storage_account_access_key = optional(string)
@@ -998,23 +1208,28 @@ variable "sql_databases" {
     }))
 
     long_term_retention_policy = optional(object({
-      weekly_retention  = optional(string, "PT0S")
-      monthly_retention = optional(string, "PT0S")
-      yearly_retention  = optional(string, "PT0S")
+      weekly_retention  = optional(string)
+      monthly_retention = optional(string)
+      yearly_retention  = optional(string)
       week_of_year      = optional(number)
     }))
 
     short_term_retention_policy = optional(object({
       retention_days           = number
-      backup_interval_in_hours = optional(number, 12)
+      backup_interval_in_hours = optional(number)
     }))
 
     identity = optional(object({
       type         = string
-      identity_ids = list(string)
+      identity_ids = optional(list(string))
     }))
+
   }))
+
+  default = {}
 }
+
+
 
 variable "service_plans" {
   type = map(object({
