@@ -143,14 +143,9 @@ stages:
             unzip -o kics.zip -d kics
             chmod +x kics/kics
             mkdir -p $(Build.SourcesDirectory)/kics-results
-
             echo "Running KICS Scan..."
             kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan"
-
-
-
-
 
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
