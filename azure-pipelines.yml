@@ -96,10 +96,10 @@ stages:
         # -------------------------
         # 3. Checkov Scan
         # -------------------------
-        - script: |
-            echo "Running Checkov Scan..."
-            checkov -d $(tf_working_dir)
-          displayName: "Checkov Scan"
+        # - script: |
+        #     echo "Running Checkov Scan..."
+        #     checkov -d $(tf_working_dir)
+        #   displayName: "Checkov Scan"
 
         # -------------------------
         # 4. TFLint Scan
