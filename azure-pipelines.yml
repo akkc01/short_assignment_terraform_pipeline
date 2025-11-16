@@ -133,14 +133,12 @@ stages:
         # 7. KICS Scan
         # -------------------------
         - script: |
-            curl -L https://github.com/Checkmarx/kics/releases/download/v2.1.15/kics-2.1.15-darwin-amd64.tar.gz -o kics.tar.gz
-            tar -xvf kics.tar.gz
+            echo "Running KICS Scan..."
+            curl -L https://github.com/Checkmarx/kics/releases/download/v2.1.15/kics-2.1.15-darwin-amd64.zip -o kics.zip
+            unzip kics.zip
             chmod +x kics
             ./kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan (Direct Binary)"
-
-
-
 
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
