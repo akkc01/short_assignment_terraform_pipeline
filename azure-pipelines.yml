@@ -134,8 +134,12 @@ stages:
         # -------------------------
         - script: |
             echo "Running KICS Scan..."
-            kics scan -p '$(tf_working_dir)' -o $(Build.SourcesDirectory)/kics-results
+            mkdir -p $(Build.SourcesDirectory)/kics-results
+            kics scan -p '$(tf_working_dir)' \
+                      -o $(Build.SourcesDirectory)/kics-results \
+                      --queries-path /opt/homebrew/Cellar/kics/2.1.15/libexec/assets/queries
           displayName: "KICS Scan"
+
 
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
