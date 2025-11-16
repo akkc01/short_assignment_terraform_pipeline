@@ -133,13 +133,16 @@ stages:
         # 7. KICS Scan
         # -------------------------
         - script: |
+            which kics
+            kics version
+          displayName: "Check KICS Binary"
+
+        - script: |
             echo "Running KICS Scan..."
             mkdir -p $(Build.SourcesDirectory)/kics-results
-            curl -L -o kics.tar.gz https://github.com/Checkmarx/kics/releases/download/v2.1.15/kics-2.1.15-darwin-amd64.tar.gz
-            tar -xvzf kics.tar.gz
-            chmod +x kics
-            ./kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
-          displayName: "KICS Scan (Direct Binary)"
+            kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
+          displayName: "KICS Scan"
+
 
 
 
