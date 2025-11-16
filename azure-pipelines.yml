@@ -141,6 +141,7 @@ stages:
             ./kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan (Direct Binary)"
 
+
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
   dependsOn: terraformscanning
@@ -173,23 +174,23 @@ stages:
             workingDirectory: '$(tf_working_dir)'
             environmentServiceNameAzureRM: '$(sc_name)'
 
-- stage: manualApproval
-  displayName: "Manual Approval Required"
-  dependsOn: terraformValidatePlan
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-    - job: approvalJob
-      displayName: "Waiting for Boss Approval"
-      pool: server
+# - stage: manualApproval
+#   displayName: "Manual Approval Required"
+#   dependsOn: terraformValidatePlan
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   jobs:
+#     - job: approvalJob
+#       displayName: "Waiting for Boss Approval"
+#       pool: server
 
-      steps:
-        - task: ManualValidation@1
-          displayName: "Boss Approval Required"
-          inputs:
-            notifyUsers: 'amitkkc01@gmail.com'
-            approvers: 'amitkkc01@gmail.com'
-            instructions: 'Please approve Terraform APPLY for MAIN branch.'
-            timeout: '120'
+#       steps:
+#         - task: ManualValidation@1
+#           displayName: "Boss Approval Required"
+#           inputs:
+#             notifyUsers: 'amitkkc01@gmail.com'
+#             approvers: 'amitkkc01@gmail.com'
+#             instructions: 'Please approve Terraform APPLY for MAIN branch.'
+#             timeout: '120'
 
 # - stage: terraformApply
 #   displayName: Terraform Apply
