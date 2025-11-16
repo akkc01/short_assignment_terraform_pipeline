@@ -64,9 +64,82 @@ stages:
             customCommand: 'fmt'
             environmentServiceNameAzureRM: '$(sc_name)'
 
+- stage: terraformscanning
+  displayName: "Code Scanning Stage"
+  dependsOn: terraformInitandfmt
+  jobs:
+    - job: terraformScanningJob
+      displayName: "Code Scanning Job"
+      steps:
+        # -------------------------
+        # 1. Scaning Tools Installation
+        # -------------------------
+        - script: |
+            echo "Installing IaC Security Tools..."
+            brew install tfsec
+            brew install checkov
+            brew install tflint
+            brew install terrascan
+            brew install aquasecurity/trivy/trivy
+            brew install kics
+          displayName: "Install IaC Scanner Tools"
+
+        # -------------------------
+        # 2. TFSec Scan
+        # -------------------------
+        - task: tfsec@1
+          displayName: "TF SEC Scanning"
+          inputs:
+            version: 'v1.26.0'
+            dir: '$(tf_working_dir)'
+
+        # -------------------------
+        # 3. Checkov Scan
+        # -------------------------
+        - script: |
+            echo "Running Checkov Scan..."
+            checkov -d $(tf_working_dir)
+          displayName: "Checkov Scan"
+
+        # -------------------------
+        # 4. TFLint Scan
+        # -------------------------
+        - script: |
+            echo "Initializing TFLint..."
+            cd $(tf_working_dir)
+            tflint --init
+
+            echo "Running TFLint Scan..."
+            tflint
+          displayName: "TFLint Scan"
+
+        # -------------------------
+        # 5. Terrascan Scan
+        # -------------------------
+        - script: |
+            echo "Running Terrascan..."
+            terrascan scan -i terraform -d $(tf_working_dir)
+          displayName: "Terrascan Scan"
+
+        # -------------------------
+        # 6. Trivy IaC Scan
+        # -------------------------
+        - script: |
+            echo "Running Trivy IaC Scan..."
+            trivy config $(tf_working_dir)
+          displayName: "Trivy IaC Scan"
+
+        # -------------------------
+        # 7. KICS Scan
+        # -------------------------
+        - script: |
+            echo "Running KICS Scan..."
+            kics scan -p $(tf_working_dir) -o $(Build.SourcesDirectory)/kics-results
+          displayName: "KICS Scan"
+
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
-  dependsOn: terraformInitandfmt
+  dependsOn: terraformscanning
   jobs:
     - job: terraformvalidatePlan
       displayName: "Terraform Validate and Plan"
