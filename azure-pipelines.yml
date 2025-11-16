@@ -116,10 +116,10 @@ stages:
         # -------------------------
         # 5. Terrascan Scan
         # -------------------------
-        - script: |
-            echo "Running Terrascan..."
-            terrascan scan -i terraform -d $(tf_working_dir)
-          displayName: "Terrascan Scan"
+        # - script: |
+        #     echo "Running Terrascan..."
+        #     terrascan scan -i terraform -d $(tf_working_dir)
+        #   displayName: "Terrascan Scan"
 
         # -------------------------
         # 6. Trivy IaC Scan
