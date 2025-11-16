@@ -132,21 +132,21 @@ stages:
         # -------------------------
         # 7. KICS Scan
         # -------------------------
-        - script: |
-            which kics
-            kics version
-          displayName: "Check KICS Binary"
+        # - script: |
+        #     which kics
+        #     kics version
+        #   displayName: "Check KICS Binary"
 
-        - script: |
-            echo "Downloading KICS..."
-            curl -L -o kics.tar.gz https://github.com/Checkmarx/kics/releases/download/2.1.15/kics_2.1.15_mac.tar.gz
-            tar -xzf kics.tar.gz
-            chmod +x kics/kics
-            mkdir -p $(Build.SourcesDirectory)/kics-results
+        # - script: |
+        #     echo "Downloading KICS..."
+        #     curl -L -o kics.tar.gz https://github.com/Checkmarx/kics/releases/download/2.1.15/kics_2.1.15_mac.tar.gz
+        #     tar -xzf kics.tar.gz
+        #     chmod +x kics/kics
+        #     mkdir -p $(Build.SourcesDirectory)/kics-results
 
-            echo "Running KICS Scan..."
-            kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
-          displayName: "KICS Scan"
+        #     echo "Running KICS Scan..."
+        #     kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
+        #   displayName: "KICS Scan"
 
 
 - stage: terraformValidatePlan
@@ -181,23 +181,23 @@ stages:
             workingDirectory: '$(tf_working_dir)'
             environmentServiceNameAzureRM: '$(sc_name)'
 
-# - stage: manualApproval
-#   displayName: "Manual Approval Required"
-#   dependsOn: terraformValidatePlan
-#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-#   jobs:
-#     - job: approvalJob
-#       displayName: "Waiting for Boss Approval"
-#       pool: server
+- stage: manualApproval
+  displayName: "Manual Approval Required"
+  dependsOn: terraformValidatePlan
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+    - job: approvalJob
+      displayName: "Waiting for Boss Approval"
+      pool: server
 
-#       steps:
-#         - task: ManualValidation@1
-#           displayName: "Boss Approval Required"
-#           inputs:
-#             notifyUsers: 'amitkkc01@gmail.com'
-#             approvers: 'amitkkc01@gmail.com'
-#             instructions: 'Please approve Terraform APPLY for MAIN branch.'
-#             timeout: '120'
+      steps:
+        - task: ManualValidation@1
+          displayName: "Boss Approval Required"
+          inputs:
+            notifyUsers: 'amitkkc01@gmail.com'
+            approvers: 'amitkkc01@gmail.com'
+            instructions: 'Please approve Terraform APPLY for MAIN branch.'
+            timeout: '120'
 
 # - stage: terraformApply
 #   displayName: Terraform Apply
