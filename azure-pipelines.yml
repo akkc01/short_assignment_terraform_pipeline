@@ -135,7 +135,7 @@ stages:
         - script: |
             echo "Running KICS Scan..."
             mkdir -p $(Build.SourcesDirectory)/kics-results
-            kics scan -p '$(tf_working_dir)' -o $(Build.SourcesDirectory)/kics-results
+            kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan"
 
 - stage: terraformValidatePlan
