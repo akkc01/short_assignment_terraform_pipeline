@@ -594,40 +594,82 @@ variable "nic_nsg_map" {
   }))
 }
 
+# variable "key_vaults" {
+#   description = "Map of Key Vault configurations."
+#   type = map(object({
+#     name                            = string
+#     location                        = string
+#     sku_name                        = string
+#     rg_key                          = string
+#     soft_delete_retention_days      = optional(number, 90)
+#     purge_protection_enabled        = optional(bool, false)
+#     enabled_for_deployment          = optional(bool, false)
+#     enabled_for_disk_encryption     = optional(bool, false)
+#     enabled_for_template_deployment = optional(bool, false)
+#     rbac_authorization_enabled      = optional(bool, false)
+#     public_network_access_enabled   = optional(bool, true)
+#     tags                            = optional(map(string), {})
+
+#     network_acls = optional(object({
+#       bypass                     = string
+#       default_action             = string
+#       ip_rules                   = optional(list(string), [])
+#       virtual_network_subnet_ids = optional(list(string), [])
+#     }), null)
+
+#     access_policies = optional(list(object({
+#       # tenant_id               = string
+#       # object_id               = string
+#       application_id          = optional(string)
+#       key_permissions         = optional(list(string), [])
+#       secret_permissions      = optional(list(string), [])
+#       certificate_permissions = optional(list(string), [])
+#       storage_permissions     = optional(list(string), [])
+#     })), [])
+#   }))
+# }
 variable "key_vaults" {
   description = "Map of Key Vault configurations."
-  type = map(object({
-    name                            = string
-    location                        = string
-    sku_name                        = string
-    rg_key                          = string
-    soft_delete_retention_days      = optional(number, 90)
-    purge_protection_enabled        = optional(bool, false)
-    enabled_for_deployment          = optional(bool, false)
-    enabled_for_disk_encryption     = optional(bool, false)
-    enabled_for_template_deployment = optional(bool, false)
-    rbac_authorization_enabled      = optional(bool, false)
-    public_network_access_enabled   = optional(bool, true)
-    tags                            = optional(map(string), {})
 
+  type = map(object({
+    name                        = string
+    location                    = string
+    sku_name                    = string
+    rg_key                      = string
+
+    # Optional simple values
+    soft_delete_retention_days     = optional(number)
+    purge_protection_enabled       = optional(bool)
+    enabled_for_deployment         = optional(bool)
+    enabled_for_disk_encryption    = optional(bool)
+    enabled_for_template_deployment = optional(bool)
+    rbac_authorization_enabled     = optional(bool)
+    public_network_access_enabled  = optional(bool)
+    tags                           = optional(map(string))
+
+    # Network ACLs
     network_acls = optional(object({
       bypass                     = string
-      default_action             = string
-      ip_rules                   = optional(list(string), [])
-      virtual_network_subnet_ids = optional(list(string), [])
-    }), null)
+      default_action              = string
+      ip_rules                    = optional(list(string))
+      virtual_network_subnet_ids  = optional(list(string))
+    }))
 
+    # Access policies
     access_policies = optional(list(object({
-      # tenant_id               = string
-      # object_id               = string
       application_id          = optional(string)
-      key_permissions         = optional(list(string), [])
-      secret_permissions      = optional(list(string), [])
-      certificate_permissions = optional(list(string), [])
-      storage_permissions     = optional(list(string), [])
-    })), [])
+      key_permissions         = optional(list(string))
+      secret_permissions      = optional(list(string))
+      certificate_permissions = optional(list(string))
+      storage_permissions     = optional(list(string))
+    })))
   }))
+
+  # IMPORTANT: Default value so TF will not ask for input
+  default = {}
 }
+
+
 
 variable "key_vault_secrets" {
   description = "Map of Key Vault Secret configurations."
@@ -641,8 +683,112 @@ variable "key_vault_secrets" {
   }))
 }
 
+# variable "lvm" {
+#   description = "Map of Linux Virtual Machines to create."
+#   type = map(object({
+#     vm_name         = string
+#     location        = string
+#     rg_key          = string
+#     nic_name        = string
+#     size            = string
+#     kv_name         = string
+#     username_secret = string
+#     password_secret = string
+#     # admin_username                  = string
+#     # admin_password                  = optional(string)
+#     disable_password_authentication = optional(bool, true)
+#     tags                            = optional(map(string))
+#     zone                            = optional(string)
+#     encryption_at_host_enabled      = optional(bool, false)
+#     priority                        = optional(string, "Regular")
+#     eviction_policy                 = optional(string)
+#     provision_vm_agent              = optional(bool, true)
+#     allow_extension_operations      = optional(bool, true)
+#     network_interface_ids           = optional(list(string), [])
+#     computer_name                   = optional(string)
+#     custom_data                     = optional(string)
+#     source_image_id                 = optional(string)
+#     admin_ssh_keys = optional(list(object({
+#       username   = string
+#       public_key = string
+#     })))
+#     license_type                  = optional(string)
+#     availability_set_id           = optional(string)
+#     capacity_reservation_group_id = optional(string)
+#     dedicated_host_id             = optional(string)
+#     dedicated_host_group_id       = optional(string)
+#     disk_controller_type          = optional(string)
+#     edge_zone                     = optional(string)
+#     max_bid_price                 = optional(number)
+#     platform_fault_domain         = optional(number)
+#     secure_boot_enabled           = optional(bool)
+#     vtpm_enabled                  = optional(bool)
+#     virtual_machine_scale_set_id  = optional(string)
+#     proximity_placement_group_id  = optional(string)
+#     reboot_setting                = optional(string)
+#     patch_mode                    = optional(string)
+#     patch_assessment_mode         = optional(string)
+
+
+#     os_disk = object({
+#       name                         = optional(string, null)
+#       caching                      = optional(string, "ReadWrite")
+#       os_disk_storage_account_type = optional(string, "Standard_LRS")
+#       disk_size_gb                 = optional(number, null)
+#     })
+
+#     source_image_reference = optional(object({
+#       publisher = string
+#       offer     = string
+#       sku       = string
+#       version   = string
+#     }))
+
+#     boot_diagnostics = optional(object({
+#       storage_account_uri = optional(string)
+#     }))
+
+#     identity = optional(object({
+#       type         = string
+#       identity_ids = optional(list(string))
+#     }))
+
+#     additional_capabilities = optional(object({
+#       ultra_ssd_enabled   = optional(bool)
+#       hibernation_enabled = optional(bool)
+#     }))
+
+#     termination_notification = optional(object({
+#       enabled = bool
+#       timeout = optional(string)
+#     }))
+
+#     os_image_notification = optional(object({
+#       timeout = optional(string)
+#     }))
+
+#     gallery_application = optional(list(object({
+#       version_id                                  = string
+#       automatic_upgrade_enabled                   = optional(bool)
+#       configuration_blob_uri                      = optional(string)
+#       order                                       = optional(number)
+#       tag                                         = optional(string)
+#       treat_failure_as_deployment_failure_enabled = optional(bool)
+#     })), [])
+
+#     secret = optional(list(object({
+#       key_vault_id = string
+#       certificate = list(object({
+#         url = string
+#       }))
+#     })), [])
+
+#   }))
+# }
+
 variable "lvm" {
   description = "Map of Linux Virtual Machines to create."
+
   type = map(object({
     vm_name         = string
     location        = string
@@ -652,24 +798,25 @@ variable "lvm" {
     kv_name         = string
     username_secret = string
     password_secret = string
-    # admin_username                  = string
-    # admin_password                  = optional(string)
-    disable_password_authentication = optional(bool, true)
+
+    disable_password_authentication = optional(bool)
     tags                            = optional(map(string))
     zone                            = optional(string)
-    encryption_at_host_enabled      = optional(bool, false)
-    priority                        = optional(string, "Regular")
+    encryption_at_host_enabled      = optional(bool)
+    priority                        = optional(string)
     eviction_policy                 = optional(string)
-    provision_vm_agent              = optional(bool, true)
-    allow_extension_operations      = optional(bool, true)
-    network_interface_ids           = optional(list(string), [])
+    provision_vm_agent              = optional(bool)
+    allow_extension_operations      = optional(bool)
+    network_interface_ids           = optional(list(string))
     computer_name                   = optional(string)
     custom_data                     = optional(string)
     source_image_id                 = optional(string)
+
     admin_ssh_keys = optional(list(object({
       username   = string
       public_key = string
     })))
+
     license_type                  = optional(string)
     availability_set_id           = optional(string)
     capacity_reservation_group_id = optional(string)
@@ -687,12 +834,11 @@ variable "lvm" {
     patch_mode                    = optional(string)
     patch_assessment_mode         = optional(string)
 
-
     os_disk = object({
-      name                         = optional(string, null)
-      caching                      = optional(string, "ReadWrite")
-      os_disk_storage_account_type = optional(string, "Standard_LRS")
-      disk_size_gb                 = optional(number, null)
+      name                         = optional(string)
+      caching                      = optional(string)
+      os_disk_storage_account_type = optional(string)
+      disk_size_gb                 = optional(number)
     })
 
     source_image_reference = optional(object({
@@ -732,17 +878,19 @@ variable "lvm" {
       order                                       = optional(number)
       tag                                         = optional(string)
       treat_failure_as_deployment_failure_enabled = optional(bool)
-    })), [])
+    })))
 
     secret = optional(list(object({
       key_vault_id = string
       certificate = list(object({
         url = string
       }))
-    })), [])
-
+    })))
   }))
+
+  default = {}
 }
+
 
 variable "wvm" {
   description = "Configuration for Windows VMs, VNets, Subnets, and NICs"
