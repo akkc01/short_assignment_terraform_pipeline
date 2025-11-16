@@ -142,6 +142,7 @@ stages:
           displayName: "KICS Scan (Direct Binary)"
 
 
+
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
   dependsOn: terraformscanning
