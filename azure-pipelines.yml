@@ -138,10 +138,16 @@ stages:
           displayName: "Check KICS Binary"
 
         - script: |
-            echo "Running KICS Scan..."
+            echo "Downloading KICS..."
+            curl -L -o kics.zip https://github.com/Checkmarx/kics/releases/download/2.1.15/kics_2.1.15_mac.zip
+            unzip -o kics.zip -d kics
+            chmod +x kics/kics
             mkdir -p $(Build.SourcesDirectory)/kics-results
-            kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
+
+            echo "Running KICS Scan..."
+            kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan"
+
 
 
 
