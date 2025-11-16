@@ -137,7 +137,7 @@ stages:
             mkdir -p $(Build.SourcesDirectory)/kics-results
             kics scan -p '$(tf_working_dir)' \
                       -o $(Build.SourcesDirectory)/kics-results \
-                      --queries-path /opt/homebrew/Cellar/kics/2.1.15/libexec/assets/queries
+                      --queries-path /opt/homebrew/opt/kics/2.1.15/libexec/assets/queries
           displayName: "KICS Scan"
 
 
