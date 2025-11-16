@@ -106,7 +106,7 @@ stages:
         # -------------------------
         - script: |
             echo "Initializing TFLint..."
-            cd $(tf_working_dir)
+            cd '$(tf_working_dir)'
             tflint --init
 
             echo "Running TFLint Scan..."
@@ -126,7 +126,7 @@ stages:
         # -------------------------
         - script: |
             echo "Running Trivy IaC Scan..."
-            trivy config $(tf_working_dir)
+            trivy config '$(tf_working_dir)'
           displayName: "Trivy IaC Scan"
 
         # -------------------------
@@ -134,7 +134,7 @@ stages:
         # -------------------------
         - script: |
             echo "Running KICS Scan..."
-            kics scan -p $(tf_working_dir) -o $(Build.SourcesDirectory)/kics-results
+            kics scan -p '$(tf_working_dir)' -o $(Build.SourcesDirectory)/kics-results
           displayName: "KICS Scan"
 
 - stage: terraformValidatePlan
