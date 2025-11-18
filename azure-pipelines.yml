@@ -34,7 +34,7 @@ variables:
 
 stages:
 - stage: terraformInitandfmt
-  displayName: "Terraform install, init and fmt"
+  displayName: "Initial stage"
   jobs:
     - job: terraformInstall
       displayName: "Install Terraform"
@@ -65,7 +65,7 @@ stages:
             environmentServiceNameAzureRM: '$(sc_name)'
 
 - stage: terraformscanning
-  displayName: "Code Scanning Stage"
+  displayName: "Code Scanning"
   dependsOn: terraformInitandfmt
   jobs:
     - job: terraformScanningJob
@@ -149,8 +149,9 @@ stages:
         #   displayName: "KICS Scan"
 
 - stage: terraformValidatePlan
-  displayName: "Terraform Validate Plan"
+  displayName: "Build Stage"
   dependsOn: terraformscanning
+  condition: succeeded('terraformscanning')
   jobs:
     - job: terraformvalidatePlan
       displayName: "Terraform Validate and Plan"
@@ -181,27 +182,33 @@ stages:
             environmentServiceNameAzureRM: '$(sc_name)'
 
 - stage: manualApproval
-  displayName: "Manual Approval Required"
+  displayName: "Manual Approval"
   dependsOn: terraformValidatePlan
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  condition: and(
+                eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                succeeded('terraformValidatePlan')
+             )
   jobs:
     - job: approvalJob
       displayName: "Waiting for Boss Approval"
       pool: server
-
       steps:
         - task: ManualValidation@1
-          displayName: "Boss Approval Required"
+          displayName: "Approval Required"
           inputs:
             notifyUsers: 'amitkkc01@gmail.com'
             approvers: 'amitkkc01@gmail.com'
             instructions: 'Please approve Terraform APPLY for MAIN branch.'
-            timeout: '120'
+            timeout: '60'
+
 
 - stage: terraformApply
-  displayName: Terraform Apply
+  displayName: "Deploy Stage"
   dependsOn: manualApproval
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  condition: and(
+                eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                succeeded('manualApproval')
+             )
   jobs:
     - job: terraformApplyJob
       displayName: Terraform Apply Job
@@ -217,9 +224,11 @@ stages:
             backendAzureRmStorageAccountName: '$(tf_storage)'
             backendAzureRmContainerName: '$(tf_container)'
             backendAzureRmKey: '$(tfstateKey)'
+
         - task: TerraformTask@5
           displayName: "Terraform Apply"
           inputs:
             provider: 'azurerm'
             command: 'apply'
+            workingDirectory: '$(tf_working_dir)'
             environmentServiceNameAzureRM: '$(sc_name)'
