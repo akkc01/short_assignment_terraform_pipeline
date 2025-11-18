@@ -148,7 +148,6 @@ stages:
         #     kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
         #   displayName: "KICS Scan"
 
-
 - stage: terraformValidatePlan
   displayName: "Terraform Validate Plan"
   dependsOn: terraformscanning
