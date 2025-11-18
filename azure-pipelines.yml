@@ -74,15 +74,27 @@ stages:
         # -------------------------
         # 1. Scaning Tools Installation
         # -------------------------
+        # - script: |
+        #     echo "Installing IaC Security Tools..."
+        #     brew install tfsec
+        #     brew install checkov
+        #     brew install tflint
+        #     brew install terrascan
+        #     brew install aquasecurity/trivy/trivy
+        #     brew install kics
+        #   displayName: "Install IaC Scanner Tools"
         - script: |
             echo "Installing IaC Security Tools..."
-            brew install tfsec
-            brew install checkov
-            brew install tflint
-            brew install terrascan
-            brew install aquasecurity/trivy/trivy
-            brew install kics
+            arch -arm64 brew install tfsec
+            arch -arm64 brew install checkov
+            arch -arm64 brew install tflint
+            arch -arm64 brew install terrascan
+            arch -arm64 brew install aquasecurity/trivy/trivy
+            arch -arm64 brew install kics
           displayName: "Install IaC Scanner Tools"
+
+
+
 
         # -------------------------
         # 2. TFSec Scan
