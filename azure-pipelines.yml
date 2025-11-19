@@ -243,6 +243,7 @@ stages:
             provider: 'azurerm'
             command: 'apply'
             workingDirectory: '$(tf_working_dir)'
+            commandOptions: '-auto-approve'
             environmentServiceNameAzureRM: '$(sc_name)'
 
 - stage: terraformDestroy
@@ -273,4 +274,5 @@ stages:
             provider: 'azurerm'
             command: 'destroy'
             workingDirectory: '$(tf_working_dir)'
+            commandOptions: '-auto-approve'
             environmentServiceNameAzureRM: '$(sc_name)'
