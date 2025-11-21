@@ -204,7 +204,7 @@ nic_nsg_map = {
 
 key_vaults = {
   kv-dev = {
-    name                            = "assignment-kv001"
+    name                            = "assignment-kv001122"
     location                        = "westus"
     rg_key                          = "rg1"
     sku_name                        = "standard"
@@ -236,37 +236,37 @@ key_vault_secrets = {
     kv_secret = "vm1-username"
     kv_value  = "akkcadmin"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
   "sc2" = {
     kv_secret = "vm1-password"
     kv_value  = "Devops#4321!"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
   "sc5" = {
     kv_secret = "vm2-username"
     kv_value  = "akkcadmin"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
   "sc6" = {
     kv_secret = "vm2-password"
     kv_value  = "Devops#4321!"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
   "sc3" = {
     kv_secret = "sql-username"
     kv_value  = "akkcsqladmin"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
   "sc4" = {
     kv_secret = "sql-password"
     kv_value  = "Devops#4321!"
     rg_key    = "rg1"
-    kv_name   = "assignment-kv001"
+    kv_name   = "assignment-kv001122"
   }
 }
 
@@ -277,7 +277,7 @@ lvm = {
     location                        = "westus"
     size                            = "Standard_B2s"
     nic_name                        = "vm1-nic"
-    kv_name                         = "assignment-kv001"
+    kv_name                         = "assignment-kv001122"
     username_secret                 = "vm1-username"
     password_secret                 = "vm1-password"
     size                            = "Standard_B1s"
@@ -305,7 +305,7 @@ wvm = {
   vm1 = {
     rg_key          = "rg1"
     vm_name         = "demo-wvm"
-    kv_name         = "assignment-kv001"
+    kv_name         = "assignment-kv001122"
     location        = "westus"
     nic_name        = "vm2-nic"
     size            = "Standard_B1s"
@@ -332,7 +332,7 @@ sql_servers = {
   server1 = {
     sqlserver_name    = "akkc-mssqlsrv001"
     rg_key            = "rg1"
-    kv_name           = "assignment-kv001"
+    kv_name           = "assignment-kv001122"
     location          = "westus"
     version           = "12.0"
     sql_user_secret   = "sql-username"
