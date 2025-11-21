@@ -31,7 +31,7 @@ stages:
 - stage: terraformInitandfmt
   displayName: "Initial stage"
   jobs:
-  - template: templates/terraform-init.yml
+  - template: templates/terraform-init.yaml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
@@ -46,7 +46,7 @@ stages:
 - stage: terraformScanning
   dependsOn: terraformInitandfmt
   jobs:
-  - template: templates/security-scan.yml
+  - template: templates/security-scan.yaml
     parameters:
       tf_working_dir: $(tf_working_dir)
 
@@ -56,7 +56,7 @@ stages:
 - stage: terraformValidatePlan
   dependsOn: terraformScanning
   jobs:
-  - template: templates/terraform-validate-plan.yml
+  - template: templates/terraform-validate-plan.yaml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
@@ -72,7 +72,7 @@ stages:
   dependsOn: terraformValidatePlan
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
-  - template: templates/terraform-approval.yml
+  - template: templates/terraform-approval.yaml
 
 # ---------------------------
 # 5. Apply
@@ -81,7 +81,7 @@ stages:
   dependsOn: manualApproval
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
-  - template: templates/terraform-apply.yml
+  - template: templates/terraform-apply.yaml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
@@ -97,7 +97,7 @@ stages:
   dependsOn: terraformApply
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
-  - template: templates/terraform-destroy.yml
+  - template: templates/terraform-destroy.yaml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
