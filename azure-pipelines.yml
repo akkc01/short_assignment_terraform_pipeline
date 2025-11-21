@@ -4,6 +4,10 @@ parameters:
     default: dev
     values: [dev, staging, prod]
 
+resources:
+  repositories:
+  - repository: self
+
 trigger:
   branches:
     include:
@@ -31,7 +35,7 @@ stages:
 - stage: terraformInitandfmt
   displayName: "Initial stage"
   jobs:
-  - template: "terraform-init.yml"
+  - template: terraform-init.yml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
