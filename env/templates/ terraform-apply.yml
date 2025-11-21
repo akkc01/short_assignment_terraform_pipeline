@@ -1,0 +1,31 @@
+parameters:
+  tf_working_dir: ""
+  tf_rg: ""
+  tf_storage: ""
+  tf_container: ""
+  tfstateKey: ""
+  sc_name: ""
+
+jobs:
+- job: applyJob
+  steps:
+    - task: TerraformTask@5
+      displayName: Init
+      inputs:
+        provider: azurerm
+        command: init
+        workingDirectory: ${{ parameters.tf_working_dir }}
+        backendServiceArm: ${{ parameters.sc_name }}
+        backendAzureRmResourceGroupName: ${{ parameters.tf_rg }}
+        backendAzureRmStorageAccountName: ${{ parameters.tf_storage }}
+        backendAzureRmContainerName: ${{ parameters.tf_container }}
+        backendAzureRmKey: ${{ parameters.tfstateKey }}
+
+    - task: TerraformTask@5
+      displayName: Apply
+      inputs:
+        provider: azurerm
+        command: apply
+        workingDirectory: ${{ parameters.tf_working_dir }}
+        commandOptions: '-auto-approve'
+        environmentServiceNameAzureRM: ${{ parameters.sc_name }}

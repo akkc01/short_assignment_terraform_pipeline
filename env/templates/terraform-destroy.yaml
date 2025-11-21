@@ -7,17 +7,13 @@ parameters:
   sc_name: ""
 
 jobs:
-- job: terraformInstall
+- job: destroyJob
   steps:
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: 'latest'
-
     - task: TerraformTask@5
-      displayName: "Terraform Init"
+      displayName: Init
       inputs:
-        provider: 'azurerm'
-        command: 'init'
+        provider: azurerm
+        command: init
         workingDirectory: ${{ parameters.tf_working_dir }}
         backendServiceArm: ${{ parameters.sc_name }}
         backendAzureRmResourceGroupName: ${{ parameters.tf_rg }}
@@ -26,9 +22,10 @@ jobs:
         backendAzureRmKey: ${{ parameters.tfstateKey }}
 
     - task: TerraformTask@5
-      displayName: "Terraform fmt"
+      displayName: Destroy
       inputs:
-        provider: 'azurerm'
-        command: 'custom'
+        provider: azurerm
+        command: destroy
         workingDirectory: ${{ parameters.tf_working_dir }}
-        customCommand: 'fmt'
+        commandOptions: '-auto-approve'
+        environmentServiceNameAzureRM: ${{ parameters.sc_name }}

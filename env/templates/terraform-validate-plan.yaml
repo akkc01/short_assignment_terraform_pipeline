@@ -7,17 +7,13 @@ parameters:
   sc_name: ""
 
 jobs:
-- job: terraformInstall
+- job: validatePlan
   steps:
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: 'latest'
-
     - task: TerraformTask@5
       displayName: "Terraform Init"
       inputs:
-        provider: 'azurerm'
-        command: 'init'
+        provider: azurerm
+        command: init
         workingDirectory: ${{ parameters.tf_working_dir }}
         backendServiceArm: ${{ parameters.sc_name }}
         backendAzureRmResourceGroupName: ${{ parameters.tf_rg }}
@@ -26,9 +22,16 @@ jobs:
         backendAzureRmKey: ${{ parameters.tfstateKey }}
 
     - task: TerraformTask@5
-      displayName: "Terraform fmt"
+      displayName: "Terraform Validate"
       inputs:
-        provider: 'azurerm'
-        command: 'custom'
+        provider: azurerm
+        command: validate
         workingDirectory: ${{ parameters.tf_working_dir }}
-        customCommand: 'fmt'
+
+    - task: TerraformTask@5
+      displayName: "Terraform Plan"
+      inputs:
+        provider: azurerm
+        command: plan
+        workingDirectory: ${{ parameters.tf_working_dir }}
+        environmentServiceNameAzureRM: ${{ parameters.sc_name }}

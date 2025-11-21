@@ -1,0 +1,278 @@
+parameters:
+  - name: environment
+    displayName: "Choose Environment"
+    type: string
+    default: dev
+    values:
+      - dev
+      - staging
+      - prod
+
+trigger:
+  branches:
+    include:
+      - main
+      - features/*
+    exclude:
+      - prod
+
+pool:
+  name: akkc_agent
+
+variables:
+  # Backend Key
+  tfstateKey: '${{ parameters.environment }}.terraform.tfstate'
+
+  # Working directory
+  tf_working_dir: '$(System.DefaultWorkingDirectory)/env/${{parameters.environment}}'
+
+  # Storage
+  tf_rg: 'my-rg-test1'
+  tf_storage: 'demostorage9451'
+  tf_container: 'tfstate'
+  sc_name: 'akkc_agent_sp'
+
+stages:
+- stage: terraformInitandfmt
+  displayName: "Initial stage"
+  jobs:
+    - job: terraformInstall
+      displayName: "Install Terraform"
+      steps:
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
+          inputs:
+            terraformVersion: 'latest'
+        - task: TerraformTask@5
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
+        - task: TerraformTask@5
+          displayName: "Terraform fmt"
+          inputs:
+            provider: 'azurerm'
+            command: 'custom'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+            outputTo: 'console'
+            customCommand: 'fmt'
+            environmentServiceNameAzureRM: '$(sc_name)'
+
+- stage: terraformscanning
+  displayName: "Code Scanning"
+  dependsOn: terraformInitandfmt
+  jobs:
+    - job: terraformScanningJob
+      displayName: "Code Scanning Job"
+      steps:
+        # -------------------------
+        # 1. Scaning Tools Installation
+        # -------------------------
+        # - script: |
+        #     echo "Installing IaC Security Tools..."
+        #     brew install tfsec
+        #     brew install checkov
+        #     brew install tflint
+        #     brew install terrascan
+        #     brew install aquasecurity/trivy/trivy
+        #     brew install kics
+        #   displayName: "Install IaC Scanner Tools"
+        - script: |
+            echo "Installing IaC Security Tools..."
+            arch -arm64 brew install tfsec
+            arch -arm64 brew install checkov
+            arch -arm64 brew install tflint
+            arch -arm64 brew install terrascan
+            arch -arm64 brew install aquasecurity/trivy/trivy
+            arch -arm64 brew install kics
+          displayName: "Install IaC Scanner Tools"
+
+
+
+
+        # -------------------------
+        # 2. TFSec Scan
+        # -------------------------
+        - task: tfsec@1
+          displayName: "TF SEC Scanning"
+          inputs:
+            version: 'v1.26.0'
+            dir: '$(tf_working_dir)'
+
+        # -------------------------
+        # 3. Checkov Scan
+        # -------------------------
+        # - script: |
+        #     echo "Running Checkov Scan..."
+        #     checkov -d $(tf_working_dir)
+        #   displayName: "Checkov Scan"
+
+        # -------------------------
+        # 4. TFLint Scan
+        # -------------------------
+        - script: |
+            echo "Initializing TFLint..."
+            cd '$(tf_working_dir)'
+            tflint --init
+
+            echo "Running TFLint Scan..."
+            tflint
+          displayName: "TFLint Scan"
+
+        # -------------------------
+        # 5. Terrascan Scan
+        # -------------------------
+        # - script: |
+        #     echo "Running Terrascan..."
+        #     terrascan scan -i terraform -d $(tf_working_dir)
+        #   displayName: "Terrascan Scan"
+
+        # -------------------------
+        # 6. Trivy IaC Scan
+        # -------------------------
+        - script: |
+            echo "Running Trivy IaC Scan..."
+            trivy config '$(tf_working_dir)'
+          displayName: "Trivy IaC Scan"
+
+        # -------------------------
+        # 7. KICS Scan
+        # -------------------------
+        # - script: |
+        #     which kics
+        #     kics version
+        #   displayName: "Check KICS Binary"
+
+        # - script: |
+        #     echo "Downloading KICS..."
+        #     curl -L -o kics.tar.gz https://github.com/Checkmarx/kics/releases/download/2.1.15/kics_2.1.15_mac.tar.gz
+        #     tar -xzf kics.tar.gz
+        #     chmod +x kics/kics
+        #     mkdir -p $(Build.SourcesDirectory)/kics-results
+
+        #     echo "Running KICS Scan..."
+        #     kics/kics scan -p '$(System.DefaultWorkingDirectory)' -o $(Build.SourcesDirectory)/kics-results
+        #   displayName: "KICS Scan"
+
+- stage: terraformValidatePlan
+  displayName: "Build Stage"
+  dependsOn: terraformscanning
+  condition: succeeded('terraformscanning')
+  jobs:
+    - job: terraformvalidatePlan
+      displayName: "Terraform Validate and Plan"
+      steps:
+        - task: TerraformTask@5
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
+        - task: TerraformTask@5
+          displayName: "Terraform Validate"
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(tf_working_dir)'
+        - task: TerraformTask@5
+          displayName: "Terraform Plan"
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(tf_working_dir)'
+            environmentServiceNameAzureRM: '$(sc_name)'
+
+- stage: manualApproval
+  displayName: "Manual Approval"
+  dependsOn: terraformValidatePlan
+  condition: and(
+                eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                succeeded('terraformValidatePlan')
+             )
+  jobs:
+    - job: approvalJob
+      displayName: "Waiting for Boss Approval"
+      pool: server
+      steps:
+        - task: ManualValidation@1
+          displayName: "Approval Required"
+          inputs:
+            notifyUsers: 'amitkkc01@gmail.com'
+            approvers: 'amitkkc01@gmail.com'
+            instructions: 'Please approve Terraform APPLY for MAIN branch.'
+            timeout: '60'
+
+
+- stage: terraformApply
+  displayName: "Deploy Stage"
+  dependsOn: manualApproval
+  condition: and(
+                eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                succeeded('manualApproval')
+             )
+  jobs:
+    - job: terraformApplyJob
+      displayName: Terraform Apply Job
+      steps:
+        - task: TerraformTask@5
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
+
+        - task: TerraformTask@5
+          displayName: "Terraform Apply"
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(tf_working_dir)'
+            commandOptions: '-auto-approve'
+            environmentServiceNameAzureRM: '$(sc_name)'
+
+- stage: terraformDestroy
+  displayName: "Destroy Stage"
+  dependsOn: terraformApply
+  condition: and(
+                eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                succeeded('terraformApply')
+             )
+  jobs:
+    - job: terraformdestroyJob
+      displayName: Terraform destroy Job
+      steps:
+        - task: TerraformTask@5
+          displayName: "Terraform Init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(tf_working_dir)'
+            backendServiceArm: '$(sc_name)'
+            backendAzureRmResourceGroupName: '$(tf_rg)'
+            backendAzureRmStorageAccountName: '$(tf_storage)'
+            backendAzureRmContainerName: '$(tf_container)'
+            backendAzureRmKey: '$(tfstateKey)'
+
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'destroy'
+            workingDirectory: '$(tf_working_dir)'
+            commandOptions: '-auto-approve'
+            environmentServiceNameAzureRM: '$(sc_name)'
