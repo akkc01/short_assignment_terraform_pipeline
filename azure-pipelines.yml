@@ -35,7 +35,7 @@ stages:
 - stage: terraformInitandfmt
   displayName: "Initial stage"
   jobs:
-  - template: short_assignment_terraform_pipeline/terraform-init.yml@self
+  - template: templates/terraform-init.yml@self
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
@@ -50,7 +50,7 @@ stages:
 - stage: terraformScanning
   dependsOn: terraformInitandfmt
   jobs:
-  - template: templates/security-scan.yml
+  - template: templates/security-scan.yml@self
     parameters:
       tf_working_dir: $(tf_working_dir)
 
