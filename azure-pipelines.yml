@@ -31,7 +31,7 @@ stages:
 - stage: terraformInitandfmt
   displayName: "Initial stage"
   jobs:
-  - template: short_assignment_terraform_pipeline/templates/terraform-init.yml
+  - template: terraform-init.yml
     parameters:
       tf_working_dir: $(tf_working_dir)
       tf_rg: $(tf_rg)
