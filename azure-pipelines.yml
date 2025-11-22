@@ -35,14 +35,19 @@ stages:
 - stage: terraformInitandfmt
   displayName: "Initial stage"
   jobs:
-  - template: templates/terraform-init.yml@self
-    parameters:
-      tf_working_dir: $(tf_working_dir)
-      tf_rg: $(tf_rg)
-      tf_storage: $(tf_storage)
-      tf_container: $(tf_container)
-      tfstateKey: $(tfstateKey)
-      sc_name: $(sc_name)
+  - job: terraformInit
+    displayName: "Terraform Init Job"
+    steps:
+      - checkout: self
+      - template: templates/terraform-init.yml@self
+        parameters:
+          tf_working_dir: $(tf_working_dir)
+          tf_rg: $(tf_rg)
+          tf_storage: $(tf_storage)
+          tf_container: $(tf_container)
+          tfstateKey: $(tfstateKey)
+          sc_name: $(sc_name)
+
 
 # ---------------------------
 # 2. Scanning
