@@ -36,9 +36,10 @@ stages:
   displayName: "Initial stage"
   jobs:
   - job: terraformInit
-    displayName: "Terraform Init Job"
+    displayName: "Terraform Init + Fmt"
     steps:
       - checkout: self
+
       - template: templates/terraform-init.yml@self
         parameters:
           tf_working_dir: $(tf_working_dir)
