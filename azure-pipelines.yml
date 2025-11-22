@@ -24,7 +24,7 @@ pool:
 
 variables:
   tfstateKey: '${{ parameters.environment }}.terraform.tfstate'
-  tf_working_dir: '$(System.DefaultWorkingDirectory)/env/${{parameters.environment}}'
+  tf_working_dir: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
   tf_rg: 'my-rg-test1'
   tf_storage: 'demostorage9451'
   tf_container: 'tfstate'
