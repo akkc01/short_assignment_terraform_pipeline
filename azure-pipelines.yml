@@ -46,7 +46,7 @@ stages:
       - checkout: self
       - checkout: akkcrepo
 
-      - template: templates/terraform-init.yml@akkcrepo
+      - template: akkcrepo/templates/terraform-init.yml@akkcrepo
         parameters:
           tf_working_dir: $(tf_working_dir)
           tf_rg: $(tf_rg)
