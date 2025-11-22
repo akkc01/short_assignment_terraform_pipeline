@@ -56,68 +56,68 @@ stages:
 
 
 
-# ---------------------------
-# 2. Scanning
-# ---------------------------
-- stage: terraformScanning
-  dependsOn: terraformInitandfmt
-  jobs:
-  - template: templates/security-scan.yml@self
-    parameters:
-      tf_working_dir: $(tf_working_dir)
+# # ---------------------------
+# # 2. Scanning
+# # ---------------------------
+# - stage: terraformScanning
+#   dependsOn: terraformInitandfmt
+#   jobs:
+#   - template: templates/security-scan.yml@self
+#     parameters:
+#       tf_working_dir: $(tf_working_dir)
 
-# ---------------------------
-# 3. Validate + Plan
-# ---------------------------
-- stage: terraformValidatePlan
-  dependsOn: terraformScanning
-  jobs:
-  - template: templates/terraform-validate-plan.yml
-    parameters:
-      tf_working_dir: $(tf_working_dir)
-      tf_rg: $(tf_rg)
-      tf_storage: $(tf_storage)
-      tf_container: $(tf_container)
-      tfstateKey: $(tfstateKey)
-      sc_name: $(sc_name)
+# # ---------------------------
+# # 3. Validate + Plan
+# # ---------------------------
+# - stage: terraformValidatePlan
+#   dependsOn: terraformScanning
+#   jobs:
+#   - template: templates/terraform-validate-plan.yml
+#     parameters:
+#       tf_working_dir: $(tf_working_dir)
+#       tf_rg: $(tf_rg)
+#       tf_storage: $(tf_storage)
+#       tf_container: $(tf_container)
+#       tfstateKey: $(tfstateKey)
+#       sc_name: $(sc_name)
 
-# ---------------------------
-# 4. Manual Approval
-# ---------------------------
-- stage: manualApproval
-  dependsOn: terraformValidatePlan
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-  - template: templates/terraform-approval.yml
+# # ---------------------------
+# # 4. Manual Approval
+# # ---------------------------
+# - stage: manualApproval
+#   dependsOn: terraformValidatePlan
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   jobs:
+#   - template: templates/terraform-approval.yml
 
-# ---------------------------
-# 5. Apply
-# ---------------------------
-- stage: terraformApply
-  dependsOn: manualApproval
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-  - template: templates/terraform-apply.yml
-    parameters:
-      tf_working_dir: $(tf_working_dir)
-      tf_rg: $(tf_rg)
-      tf_storage: $(tf_storage)
-      tf_container: $(tf_container)
-      tfstateKey: $(tfstateKey)
-      sc_name: $(sc_name)
+# # ---------------------------
+# # 5. Apply
+# # ---------------------------
+# - stage: terraformApply
+#   dependsOn: manualApproval
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   jobs:
+#   - template: templates/terraform-apply.yml
+#     parameters:
+#       tf_working_dir: $(tf_working_dir)
+#       tf_rg: $(tf_rg)
+#       tf_storage: $(tf_storage)
+#       tf_container: $(tf_container)
+#       tfstateKey: $(tfstateKey)
+#       sc_name: $(sc_name)
 
-# ---------------------------
-# 6. Destroy
-# ---------------------------
-- stage: terraformDestroy
-  dependsOn: terraformApply
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-  - template: templates/terraform-destroy.yml
-    parameters:
-      tf_working_dir: $(tf_working_dir)
-      tf_rg: $(tf_rg)
-      tf_storage: $(tf_storage)
-      tf_container: $(tf_container)
-      tfstateKey: $(tfstateKey)
-      sc_name: $(sc_name)
+# # ---------------------------
+# # 6. Destroy
+# # ---------------------------
+# - stage: terraformDestroy
+#   dependsOn: terraformApply
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   jobs:
+#   - template: templates/terraform-destroy.yml
+#     parameters:
+#       tf_working_dir: $(tf_working_dir)
+#       tf_rg: $(tf_rg)
+#       tf_storage: $(tf_storage)
+#       tf_container: $(tf_container)
+#       tfstateKey: $(tfstateKey)
+#       sc_name: $(sc_name)
