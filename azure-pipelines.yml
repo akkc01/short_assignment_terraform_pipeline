@@ -7,9 +7,11 @@ parameters:
 resources:
   repositories:
     - repository: akkcrepo
-      type: gitHub
-      endpoint: github.com_akkc01
+      type: github
       name: akkc01/short_assignment_terraform_pipeline
+      endpoint: github.com_akkc01
+      ref: refs/heads/main
+
 
 trigger:
   branches:
@@ -37,58 +39,31 @@ stages:
 # ---------------------------
 - stage: terraformInitandfmt
   displayName: "Initial stage"
-  # jobs:
-  # - job: terraformInit
-  #   displayName: "Terraform Init + Fmt"
-  #   steps:
-  #     - checkout: self
-
-  #     - template: templates/terraform-init.yml@akkcrepo
-  #       parameters:
-  #         tf_working_dir: $(tf_working_dir)
-  #         tf_rg: $(tf_rg)
-  #         tf_storage: $(tf_storage)
-  #         tf_container: $(tf_container)
-  #         tfstateKey: $(tfstateKey)
-  #         sc_name: $(sc_name)
-  #     - script: ls -R
-  #       displayName: "DEBUG: Show Files"
-
-  #     - script: |
-  #         echo "Working Dir:"
-  #         pwd
-  #         echo ""
-  #         echo "Files:"
-  #         ls -R
-  #       displayName: "DIR CHECK"
   jobs:
-    - job: terraformInstall
-      displayName: "Install Terraform"
-      steps:
-        - task: TerraformInstaller@1
-          displayName: "Install Terraform"
-          inputs:
-            terraformVersion: 'latest'
-        - task: TerraformTask@5
-          displayName: "Terraform Init"
-          inputs:
-            provider: 'azurerm'
-            command: 'init'
-            workingDirectory: '$(tf_working_dir)'
-            backendServiceArm: '$(sc_name)'
-            backendAzureRmResourceGroupName: '$(tf_rg)'
-            backendAzureRmStorageAccountName: '$(tf_storage)'
-            backendAzureRmContainerName: '$(tf_container)'
-            backendAzureRmKey: '$(tfstateKey)'
-        - task: TerraformTask@5
-          displayName: "Terraform fmt"
-          inputs:
-            provider: 'azurerm'
-            command: 'custom'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
-            outputTo: 'console'
-            customCommand: 'fmt'
-            environmentServiceNameAzureRM: '$(sc_name)'
+  - job: terraformInit
+    displayName: "Terraform Init + Fmt"
+    steps:
+      - checkout: self
+
+      - template: templates/terraform-init.yml@akkcrepo
+        parameters:
+          tf_working_dir: $(tf_working_dir)
+          tf_rg: $(tf_rg)
+          tf_storage: $(tf_storage)
+          tf_container: $(tf_container)
+          tfstateKey: $(tfstateKey)
+          sc_name: $(sc_name)
+      - script: ls -R
+        displayName: "DEBUG: Show Files"
+
+      - script: |
+          echo "Working Dir:"
+          pwd
+          echo ""
+          echo "Files:"
+          ls -R
+        displayName: "DIR CHECK"
+
 
 
 
