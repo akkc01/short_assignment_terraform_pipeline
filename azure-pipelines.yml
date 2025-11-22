@@ -8,7 +8,7 @@ resources:
   repositories:
     - repository: self
       type: gitHub
-      endpoint: GitHubConnection
+      endpoint: github.com_akkc01
       name: akkc01/short_assignment_terraform_pipeline
 
 trigger:
