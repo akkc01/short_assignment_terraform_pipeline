@@ -44,6 +44,7 @@ stages:
     displayName: "Terraform Init + Fmt"
     steps:
       - checkout: self
+      - checkout: akkcrepo
 
       - template: templates/terraform-init.yml@akkcrepo
         parameters:
