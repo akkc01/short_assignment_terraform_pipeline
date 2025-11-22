@@ -4,12 +4,12 @@ parameters:
     default: dev
     values: [dev, staging, prod]
 
-resources:
-  repositories:
-    - repository: akkcrepo
-      type: gitHub
-      endpoint: github.com_akkc01
-      name: akkc01/short_assignment_terraform_pipeline
+# resources:
+#   repositories:
+#     - repository: akkcrepo
+#       type: gitHub
+#       endpoint: github.com_akkc01
+#       name: akkc01/short_assignment_terraform_pipeline
 
 trigger:
   branches:
@@ -43,7 +43,7 @@ stages:
     steps:
       - checkout: self
 
-      - template: ./templates/terraform-init.yml@akkcrepo
+      - template: templates/terraform-init.yml
         parameters:
           tf_working_dir: $(tf_working_dir)
           tf_rg: $(tf_rg)
@@ -53,6 +53,15 @@ stages:
           sc_name: $(sc_name)
       - script: ls -R
         displayName: "DEBUG: Show Files"
+
+      - script: |
+          echo "Working Dir:"
+          pwd
+          echo ""
+          echo "Files:"
+          ls -R
+        displayName: "DIR CHECK"
+
 
 
 
