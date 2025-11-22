@@ -50,6 +50,9 @@ stages:
           tf_container: $(tf_container)
           tfstateKey: $(tfstateKey)
           sc_name: $(sc_name)
+      - script: ls -R
+        displayName: "DEBUG: Show Files"
+
 
 
 # ---------------------------
