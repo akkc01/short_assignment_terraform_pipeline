@@ -6,7 +6,9 @@ parameters:
 
 resources:
   repositories:
-  - repository: self
+    - repository: self
+      type: gitHub
+      name: akkc01/short_assignment_terraform_pipeline
 
 trigger:
   branches:
